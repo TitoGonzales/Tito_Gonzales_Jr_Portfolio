@@ -185,6 +185,21 @@ summary::after{content:"+";color:var(--ac);font-size:1.3rem;line-height:1;transi
 details[open] summary::after{transform:rotate(45deg)}
 details p{padding:0 22px 20px;color:var(--mu)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}.rv{opacity:1;transform:none}}
+
+/* Simple client-facing sample gallery */
+.sample-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:10px;min-height:245px;width:100%;font:inherit;color:var(--tx);cursor:pointer;transition:transform .25s,border-color .25s,background .25s}
+.sample-card:hover{transform:translateY(-5px);border-color:rgba(122,162,255,.55);background:linear-gradient(145deg,rgba(122,162,255,.12),rgba(255,255,255,.035))}
+.sample-card h3{margin:0;font-size:1.05rem}
+.sample-card p{color:var(--mu);font-size:.91rem}
+.sample-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;border:1px solid rgba(122,162,255,.3);background:rgba(122,162,255,.12);color:var(--ac);font-size:1.5rem}
+.sample-open{margin-top:auto;padding-top:8px;color:var(--ac);font-weight:700;font-size:.9rem}
+#samplePreview{width:min(920px,calc(100% - 24px));max-height:92vh;overflow:auto}
+#samplePreview .in{padding:clamp(18px,3vw,30px)}
+#samplePreview .x{position:sticky;top:0;float:right;z-index:2}
+#samplePreview h3{margin:8px 0 10px}
+#samplePreviewDescription{color:var(--mu);margin-bottom:16px}
+.sample-preview-content{clear:both;min-height:240px}
+
 </style>
 </head>
 <body>
@@ -261,10 +276,19 @@ details p{padding:0 22px 20px;color:var(--mu)}
 </div></section>
 
 <section id="samples"><div class="wrap">
-<div class="sec-h rv"><h2>Sample Work</h2><p>Browse examples of my work by service area. Select any item to preview it, open it in a new tab, or download it.</p></div>
-<div class="fl" id="fl" role="group" aria-label="Filter sample work"></div>
-<div class="grid3" id="wk"></div>
-<div class="ctas"><a class="btn" href="mailto:titogonzalesjr04@gmail.com?subject=Request%20for%20work%20samples">Request more samples</a></div>
+  <div class="sec-h rv">
+    <h2>Sample Work</h2>
+    <p>Choose a service to view a sample. Samples open in a preview here on the page, with no download button.</p>
+  </div>
+  <div class="grid3" id="sampleGallery">
+    <button class="glass card sample-card rv" type="button" data-sample="calendar"><span class="sample-icon" aria-hidden="true">▦</span><span class="cat">Calendar Management</span><h3>Calendar &amp; Schedule Planning</h3><p>Weekly calendar, appointments, priorities, and meeting blocks.</p><span class="sample-open">View sample →</span></button>
+    <button class="glass card sample-card rv" type="button" data-sample="email"><span class="sample-icon" aria-hidden="true">✉</span><span class="cat">Email Management</span><h3>Inbox Organization</h3><p>Inbox categories, priority messages, follow-ups, and email drafting.</p><span class="sample-open">View sample →</span></button>
+    <button class="glass card sample-card rv" type="button" data-sample="executive"><span class="sample-icon" aria-hidden="true">▤</span><span class="cat">Executive Assistant Support</span><h3>Executive Support Pack</h3><p>Meeting brief, action-item list, and daily priority plan.</p><span class="sample-open">View sample →</span></button>
+    <button class="glass card sample-card rv" type="button" data-sample="business"><span class="sample-icon" aria-hidden="true">▥</span><span class="cat">Business Operations</span><h3>Operations Tracker</h3><p>Example business task, inventory, and operations tracking sheet.</p><span class="sample-open">View sample →</span></button>
+    <button class="glass card sample-card rv" type="button" data-sample="relationships"><span class="sample-icon" aria-hidden="true">♧</span><span class="cat">Client &amp; Relationship Management</span><h3>Client Follow-up Tracker</h3><p>Client conversations, next steps, and follow-up dates.</p><span class="sample-open">View sample →</span></button>
+    <button class="glass card sample-card rv" type="button" data-sample="research"><span class="sample-icon" aria-hidden="true">⌕</span><span class="cat">Research &amp; Data Management</span><h3>Research Summary</h3><p>Organized research notes, comparisons, and a concise summary.</p><span class="sample-open">View sample →</span></button>
+  </div>
+  <p class="note">These cards need your actual sample PDFs in the <code>samples</code> folder. Use fictional or anonymized details in portfolio examples.</p>
 </div></section>
 
 <section id="demo"><div class="wrap">
@@ -366,31 +390,39 @@ $("#dx").onclick=function(){dlg.close()};
 dlg.addEventListener("click",function(e){if(e.target===dlg)dlg.close()});
 $("#yr").textContent=new Date().getFullYear();
 /* nav */
-/* SAMPLE WORK GALLERY. To add a sample: upload the file to the repo's samples folder, then add a line below.
-   k is "img" (photo), "pdf" or "demo". f is the file path. c is the category shown as a filter. */
-var WORKS=[
-{t:"Administrative Support Workflow",c:"Admin Support",k:"demo",f:"#demo",d:"Interactive practice demo: weekly schedule, task board, follow-up tracker and meeting brief, using fictional sample data."},
-{t:"Resume",c:"Documents",k:"pdf",f:"Tito_Gonzales_Resume.pdf",d:"My full resume as a PDF."}
-/* ,{t:"Example title",c:"Design",k:"img",f:"samples/example.jpg",d:"One-line description."} */
-];
-var cf="All",vl=[],wi=0,wd=$("#wd");
-var IC={pdf:'<rect x="75" y="12" width="60" height="76" rx="6"/><path d="M88 36h34M88 48h34M88 60h20"/>',demo:'<rect x="40" y="15" width="130" height="70" rx="6"/><path d="M40 35h130M85 35v50M125 35v50"/>',img:'<rect x="50" y="15" width="110" height="70" rx="6"/><circle cx="80" cy="38" r="7"/><path d="m55 80 30-26 22 18 14-12 34 20"/>'};
-function rw(){var cs=["All"].concat(WORKS.map(function(w){return w.c}).filter(function(v,i,a){return a.indexOf(v)===i}));
-$("#fl").innerHTML=cs.length>2?cs.map(function(c){return'<button class="chip" aria-pressed="'+(c===cf)+'">'+c+'</button>'}).join(""):"";
-vl=WORKS.filter(function(w){return cf==="All"||w.c===cf});
-$("#wk").innerHTML=vl.length?vl.map(function(w,i){var L={img:"Photo",pdf:"PDF",demo:"Interactive demo"}[w.k]||"File";return'<article class="glass proj pop" style="--d:'+i*70+'ms"><div class="thumb"><svg viewBox="0 0 210 100" fill="none" stroke="#7aa2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[w.k]+'</svg>'+(w.k==="img"?'<img src="'+w.f+'" alt="'+w.t+'" loading="lazy" onerror="this.remove()">':'')+'<span class="tag">'+L+'</span></div><div class="b"><span class="cat">'+w.c+'</span><h3>'+w.t+'</h3><p>'+w.d+'</p>'+(w.k==="demo"?'<a class="btn" href="'+w.f+'">Open demo</a>':'<button class="btn" data-w="'+i+'">Preview</button>')+'</div></article>'}).join(""):'<p class="note">No samples in this category yet.</p>';
-document.querySelectorAll("#fl button").forEach(function(b){b.onclick=function(){cf=b.textContent;rw()}});
-document.querySelectorAll("[data-w]").forEach(function(b){b.onclick=function(){ow(+b.dataset.w)}})}
-function ow(i){var w=vl[i],n=vl.filter(function(x){return x.k!=="demo"}).length;wi=i;
-var v=w.k==="img"?'<img src="'+w.f+'" alt="'+w.t+'" style="width:100%;border-radius:12px">':'<object data="'+w.f+'" type="application/pdf" style="width:100%;height:60vh;border-radius:12px;background:#fff"><p style="padding:16px;color:#333">This browser cannot show the PDF here. Use the buttons below to open it.</p></object>';
-$("#wc").innerHTML='<p style="color:var(--ac);font-weight:600;font-size:.9rem">'+w.c+'</p><h3 id="wt">'+w.t+'</h3><p>'+w.d+'</p><div style="margin:16px 0">'+v+'</div><div class="ctas" style="margin:0"><a class="btn pri" href="'+w.f+'" target="_blank" rel="noopener">Open in new tab</a><a class="btn" href="'+w.f+'" download>Download</a>'+(n>1?'<button class="btn" id="wp">Previous</button><button class="btn" id="wn">Next</button>':'')+'</div>';
-if(n>1){$("#wp").onclick=function(){st(-1)};$("#wn").onclick=function(){st(1)}}
-if(!wd.open)wd.showModal()}
-function st(d){var i=wi;do{i=(i+d+vl.length)%vl.length}while(vl[i].k==="demo");ow(i)}
-$("#wx").onclick=function(){wd.close()};
-wd.addEventListener("click",function(e){if(e.target===wd)wd.close()});
-wd.addEventListener("keydown",function(e){if(e.key==="ArrowRight")st(1);if(e.key==="ArrowLeft")st(-1)});
-rw();
+/* Simple client-facing sample previews. Put matching PDF files in the /samples folder. */
+var SAMPLE_FILES={
+  calendar:{title:"Calendar Management",file:"samples/calendar-management.pdf",description:"Weekly calendar and schedule planning sample."},
+  email:{title:"Email Management",file:"samples/email-management.pdf",description:"Inbox organization and professional email sample."},
+  executive:{title:"Executive Assistant Support",file:"samples/executive-assistant-support.pdf",description:"Meeting brief, priorities, and action-item sample."},
+  business:{title:"Business Operations",file:"samples/business-operations.pdf",description:"Business operations and task tracking sample."},
+  relationships:{title:"Client & Relationship Management",file:"samples/client-relationship-management.pdf",description:"Client follow-up and relationship tracker sample."},
+  research:{title:"Research & Data Management",file:"samples/research-data-management.pdf",description:"Research summary and data organization sample."}
+};
+var sampleDialog=document.createElement("dialog");
+sampleDialog.id="samplePreview";
+sampleDialog.setAttribute("aria-labelledby","samplePreviewTitle");
+sampleDialog.innerHTML='<div class="in"><button class="btn x" type="button" id="closeSamplePreview">Close</button><p class="cat">SAMPLE WORK PREVIEW</p><h3 id="samplePreviewTitle"></h3><p id="samplePreviewDescription"></p><div id="samplePreviewContent" class="sample-preview-content"></div><p class="note" id="samplePreviewNote"></p></div>';
+document.body.appendChild(sampleDialog);
+document.querySelectorAll("[data-sample]").forEach(function(card){
+  card.addEventListener("click",function(){
+    var sample=SAMPLE_FILES[card.getAttribute("data-sample")];
+    if(!sample)return;
+    $("#samplePreviewTitle").textContent=sample.title;
+    $("#samplePreviewDescription").textContent=sample.description;
+    var content=$("#samplePreviewContent");
+    content.innerHTML="";
+    var frame=document.createElement("iframe");
+    frame.src=sample.file+"#toolbar=0&navpanes=0";
+    frame.title=sample.title+" PDF preview";
+    frame.style.cssText="width:100%;height:min(68vh,760px);border:1px solid var(--line);border-radius:12px;background:#fff";
+    content.appendChild(frame);
+    $("#samplePreviewNote").textContent="If the preview is blank, upload the PDF to this path in your repository: "+sample.file;
+    sampleDialog.showModal();
+  });
+});
+$("#closeSamplePreview").addEventListener("click",function(){sampleDialog.close()});
+sampleDialog.addEventListener("click",function(e){if(e.target===sampleDialog)sampleDialog.close()});
 addEventListener("scroll",function(){var m=document.documentElement.scrollHeight-innerHeight;$("#pg").style.width=(m>0?scrollY/m*100:0)+"%";$("#up").classList.toggle("show",scrollY>700)},{passive:true});
 $("#up").onclick=function(){scrollTo({top:0,behavior:"smooth"})};
 $("#cp").onclick=function(){var b=this;function m(t){b.textContent=t;setTimeout(function(){b.textContent="Copy email"},2000)}try{navigator.clipboard.writeText("titogonzalesjr04@gmail.com").then(function(){m("Copied")},function(){m("Copy failed")})}catch(e){m("Copy failed")}};
